@@ -18,7 +18,7 @@ metadata:
   labels:
     app: lp
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: lp
