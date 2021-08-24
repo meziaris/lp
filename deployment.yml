@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Service
+apiVersion: v1
+metadata:
+  name: lp
+spec:
+  selector:
+    app: lp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lp
+  labels:
+    app: lp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lp
+  template:
+    metadata:
+      labels:
+        app: lp
+    spec:
+      containers:
+      - name: lp
+        image: sddswd/lp:<TAG>
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lp
+  labels:
+    app: lp
+  annotations:
+    kubernetes.io/ingress.class: "kong"
+    konghq.com/strip-path: "true"
+    # konghq.com/preserve-host: "true"
+spec:
+  rules:
+    - host: "lp.mezi.web.id"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: lp
+                port:
+                  number: 80
