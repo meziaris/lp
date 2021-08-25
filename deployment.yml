@@ -29,14 +29,9 @@ spec:
     spec:
       containers:
       - name: lp
-        image: sddswd/lp:<TAG>
+        image: sddswd/lp:latest
         ports:
         - containerPort: 80
-        resources:
-          limits:
-            cpu: 500m
-          requests:
-            cpu: 200m
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
