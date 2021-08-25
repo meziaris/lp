@@ -1,8 +1,12 @@
 pipeline {
-  
+
+  options {
+    ansiColor('xterm')
+  }
+
   agent {
     kubernetes {
-      yamlFile 'builder.yml'
+      yamlFile 'builder.yaml'
     }
   }
 
@@ -26,8 +30,8 @@ pipeline {
       steps {
         container('kubectl') {
           withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-            sh 'sed -i "s/latest/${BUILD_NUMBER}/" deployment.yaml'
-            sh 'kubectl apply -f deployment.yaml'
+            sh 'sed -i "s/latest/${BUILD_NUMBER}/" deployment.yml'
+            sh 'kubectl apply -f deployment.yml'
           }
         }
       }
