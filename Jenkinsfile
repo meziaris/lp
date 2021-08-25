@@ -26,16 +26,16 @@ pipeline {
       }
     }
 
-    stage('Deploy App to Kubernetes') {     
-      steps {
-        container('kubectl') {
-          withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-            sh 'sed -i "s/latest/${BUILD_NUMBER}/" deployment.yml'
-            sh 'kubectl apply -f deployment.yml'
-          }
-        }
-      }
-    }
+    // stage('Deploy App to Kubernetes') {     
+    //   steps {
+    //     container('kubectl') {
+    //       withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+    //         sh 'sed -i "s/latest/${BUILD_NUMBER}/" deployment.yml'
+    //         sh 'kubectl apply -f deployment.yml'
+    //       }
+    //     }
+    //   }
+    // }
   
   }
 }
