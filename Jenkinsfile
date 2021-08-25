@@ -1,41 +1,42 @@
 pipeline {
-
-  options {
-    ansiColor('xterm')
-  }
-
   agent {
     kubernetes {
-      yamlFile 'builder.yaml'
+      yaml """
+kind: Pod
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: Always
+    command:
+    - sleep
+    args:
+    - 9999999
+    volumeMounts:
+      - name: jenkins-docker-cfg
+        mountPath: /kaniko/.docker
+  volumes:
+  - name: jenkins-docker-cfg
+    projected:
+      sources:
+      - secret:
+          name: docker-credentials 
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+"""
     }
   }
-
   stages {
-
-    stage('Kaniko Build & Push Image') {
+    stage('Build with Kaniko') {
       steps {
-        container('kaniko') {
-          script {
-            sh '''
-            /kaniko/executor --dockerfile `pwd`/Dockerfile \
-                             --context `pwd` \
-                             --destination=sddswd/lp:${BUILD_NUMBER}
-            '''
-          }
+        container(name: 'kaniko', shell: '/busybox/sh') {
+          sh '''#!/busybox/sh
+            echo "FROM jenkins/inbound-agent:latest" > Dockerfile
+            /kaniko/executor --context `pwd` --destination sddswd/lp:${BUILD_NUMBER} 
+          '''
         }
       }
     }
-
-    // stage('Deploy App to Kubernetes') {     
-    //   steps {
-    //     container('kubectl') {
-    //       withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-    //         sh 'sed -i "s/latest/${BUILD_NUMBER}/" deployment.yml'
-    //         sh 'kubectl apply -f deployment.yml'
-    //       }
-    //     }
-    //   }
-    // }
-  
   }
 }
