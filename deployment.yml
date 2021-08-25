@@ -1,17 +1,4 @@
 apiVersion: apps/v1
-kind: Service
-apiVersion: v1
-metadata:
-  name: lp
-spec:
-  selector:
-    app: lp
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
----
-apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: lp
@@ -30,8 +17,24 @@ spec:
       containers:
       - name: lp
         image: sddswd/lp:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
+
+---
+apiVersion: apps/v1
+kind: Service
+apiVersion: v1
+metadata:
+  name: lp
+spec:
+  selector:
+    app: lp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
