@@ -27,8 +27,6 @@ spec:
 """
     }
 
-  }
-
   // stages {
 
   //   stage('Kaniko Build & Push Image') {
