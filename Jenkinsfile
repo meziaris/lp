@@ -4,42 +4,23 @@ pipeline {
 
     environment {
         KUBECONFIG = credentials('kubeconfig')
-        registry = "sddswd/lp"
-        registryCredential = 'dockerhublogin'
-        dockerImage = ''
     }
         
     stages {
         stage('Build podman Image') {
             steps {
-               script{
-                   dockerImage = docker.build registry + ":$BUILD_NUMBER"
-               }
+                sh 'podman build -t sddswd/lp:$BUILD_NUMBER .'
+                sh 'podman tag sddswd/lp:$BUILD_NUMBER sddswd/lp:latest'
             }
         }
-        stage('Push Image to Dockerhub'){
-            steps{
-                script{
-                    docker.withRegistry( '', registryCredential ){
-                        dockerImage.push()
-                    }
+        stage('Push Image to podman hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhublogin', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]){
+                    sh 'podman push sddswd/lp:$BUILD_NUMBER'
+                    sh 'podman push sddswd/lp:latest'
                 }
             }
         }
-        // stage('Build Podman Image') {
-        //     steps {
-        //         sh 'podman build -t sddswd/lp:$BUILD_NUMBER .'
-        //         sh 'podman tag sddswd/lp:$BUILD_NUMBER sddswd/lp:latest'
-        //     }
-        // }
-        // stage('Push Image to podman hub') {
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: 'dockerhublogin', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]){
-        //             sh 'podman push sddswd/lp:$BUILD_NUMBER'
-        //             sh 'podman push sddswd/lp:latest'
-        //         }
-        //     }
-        // }
         stage('Deploy to K8S') {
             steps {
                 checkout scm
