@@ -26,7 +26,7 @@ pipeline {
     //   }
     // }
 
-    stage('Deploy App to Kubernetes') {     
+    stage('Get All Pods') {     
       steps {
         container('kubectl') {
           withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
