@@ -1,54 +1,44 @@
 pipeline {
+    
+    agent any
 
-  options {
-    ansiColor('xterm')
-  }
-
-  agent {
-    kubernetes {
-      yamlFile 'builder.yaml'
+    environment {
+        KUBECONFIG = credentials('kubeconfig')
     }
-  }
-
-  stages {
-    stage('Kaniko Build & Push Image') {
-      steps {
-        container('kaniko') {
-          script {
-            sh '''
-            /kaniko/executor --dockerfile `pwd`/Dockerfile \
-                             --context `pwd` \
-                             --destination=sddswd/lp:${BUILD_NUMBER}
-            '''
-          }
+        
+    stages {
+        stage('Build podman Image') {
+            steps {
+                sh 'podman build -t sddswd/lp:$BUILD_NUMBER .'
+                sh 'podman tag sddswd/lp:$BUILD_NUMBER sddswd/lp:latest'
+            }
         }
-      }
-    }
-    stage('Get All Pods') {     
-      steps {
-        container('kubectl') {
-          withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-            sh 'kubectl get pods -A'
-          }
+        stage('Push Image to podman hub') {
+            steps {
+				sh 'podman push sddswd/lp:$BUILD_NUMBER'
+                sh 'podman push sddswd/lp:latest'
+            }
         }
-      }
-    }
-    stage('Deploy App to Kubernetes') {     
-      steps {
-        container('kubectl') {
-          withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-            sh 'sed -i "s/latest/${BUILD_NUMBER}/" deployment.yml'
-            sh 'kubectl apply -f deployment.yml'
-          }
+        stage('Deploy to K8S') {
+            steps {
+                checkout scm
+                sh """
+                sed -i 's/latest/$BUILD_NUMBER/g' deployment.yml
+				kubectl --kubeconfig $KUBECONFIG apply -f deployment.yml
+                """
+            }
         }
-      }
+        stage('Remove podman image last build Dev') {
+            steps {
+                sh 'podman rmi sddswd/lp:$BUILD_NUMBER'
+                sh 'podman rmi sddswd/lp:latest'
+            }
+        }
+        stage('Git') {
+            steps {
+                step([$class: 'WsCleanup'])
+                checkout scm
+            }
+        }
     }
-    stage('Git'){
-      steps{
-        step([$class: 'WsCleanup'])
-        checkout scm
-      }
-    }
-  
-  }
 }
