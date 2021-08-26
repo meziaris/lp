@@ -4,20 +4,20 @@ metadata:
   name: kaniko
 spec:
   containers:
-    - name: kubectl
-      image: bitnami/kubectl:latest
-      # command:
-      #   - /bin/cat
-      tty: true
-    # - name: kaniko
-    #   image: gcr.io/kaniko-project/executor:debug-539ddefcae3fd6b411a95982a830d987f4214251
-    #   imagePullPolicy: Always
+    # - name: kubectl
+    #   image: joshendriks/alpine-k8s
     #   command:
-    #     - /busybox/cat
+    #     - /bin/cat
     #   tty: true
-    #   volumeMounts:
-    #     - name: kaniko-secret
-    #       mountPath: /kaniko/.docker
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:debug-539ddefcae3fd6b411a95982a830d987f4214251
+      imagePullPolicy: Always
+      command:
+        - /busybox/cat
+      tty: true
+      volumeMounts:
+        - name: kaniko-secret
+          mountPath: /kaniko/.docker
   volumes:
     - name: kaniko-secret
       secret:
