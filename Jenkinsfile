@@ -4,7 +4,11 @@ pipeline {
         ansiColor('xterm')
     }
     
-    agent any
+    agent {
+        kubernetes{
+            yamlFile 'builder.yaml'
+        }
+    }
 
     environment {
         KUBECONFIG = credentials('kubeconfig')
@@ -21,20 +25,29 @@ pipeline {
 		// 		sh 'docker push sddswd/lp:$BUILD_NUMBER'
         //     }
         // }
-        stage('Deploy to K8S') {
+        stage('Get All Pods') {
             steps {
-                checkout scm
-                sh """
-                sed -i 's/latest/$BUILD_NUMBER/g' deployment.yml
-				kubectl --kubeconfig $KUBECONFIG apply -f deployment.yml
-                """
+                container('kubectl'){
+                    withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]){
+                        sh 'kubectl get pods -A'
+                    }
+                }
             }
         }
-        stage('Remove docker image last build Dev') {
-            steps {
-                sh 'docker rmi sddswd/lp:$BUILD_NUMBER'
-            }
-        }
+        // stage('Deploy to K8S') {
+        //     steps {
+        //         checkout scm
+        //         sh """
+        //         sed -i 's/latest/$BUILD_NUMBER/g' deployment.yml
+		// 		kubectl --kubeconfig $KUBECONFIG apply -f deployment.yml
+        //         """
+        //     }
+        // }
+        // stage('Remove docker image last build Dev') {
+        //     steps {
+        //         sh 'docker rmi sddswd/lp:$BUILD_NUMBER'
+        //     }
+        // }
         stage('Git') {
             steps {
                 step([$class: 'WsCleanup'])
