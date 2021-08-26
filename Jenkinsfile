@@ -11,7 +11,6 @@ pipeline {
   }
 
   stages {
-
     stage('Kaniko Build & Push Image') {
       steps {
         container('kaniko') {
@@ -25,26 +24,25 @@ pipeline {
         }
       }
     }
-
-    // stage('Get All Pods') {     
-    //   steps {
-    //     container('kubectl') {
-    //       withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-    //         sh 'kubectl get pods -A'
-    //       }
-    //     }
-    //   }
-    // }
-    // stage('Deploy App to Kubernetes') {     
-    //   steps {
-    //     container('kubectl') {
-    //       withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-    //         sh 'sed -i "s/latest/${BUILD_NUMBER}/" deployment.yml'
-    //         sh 'kubectl apply -f deployment.yml'
-    //       }
-    //     }
-    //   }
-    // }
+    stage('Get All Pods') {     
+      steps {
+        container('kubectl') {
+          withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+            sh 'kubectl get pods -A'
+          }
+        }
+      }
+    }
+    stage('Deploy App to Kubernetes') {     
+      steps {
+        container('kubectl') {
+          withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+            sh 'sed -i "s/latest/${BUILD_NUMBER}/" deployment.yml'
+            sh 'kubectl apply -f deployment.yml'
+          }
+        }
+      }
+    }
     stage('Git'){
       steps{
         step([$class: 'WsCleanup'])
