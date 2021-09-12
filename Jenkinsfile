@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Build docker Image') {
             steps {
-                sh 'sudo usermod -aG docker jenkins'
+                sh 'usermod -aG docker jenkins'
                 sh 'docker build -t sddswd/lp:$BUILD_NUMBER .'
                 sh 'docker tag sddswd/lp:$BUILD_NUMBER sddswd/lp:latest'
             }
