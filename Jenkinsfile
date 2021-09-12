@@ -9,6 +9,7 @@ pipeline {
     stages {
         stage('Build docker Image') {
             steps {
+                sh 'whoami'
                 sh 'docker build -t sddswd/lp:$BUILD_NUMBER .'
                 sh 'docker tag sddswd/lp:$BUILD_NUMBER sddswd/lp:latest'
             }
