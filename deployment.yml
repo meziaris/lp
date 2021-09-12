@@ -35,21 +35,43 @@ spec:
       port: 80
       targetPort: 80
 
----
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: lp
+#   labels:
+#     app: lp
+#   annotations:
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+# spec:
+#   rules:
+#   - host: lp.mezi.web.id
+#     http:
+#       paths:
+#       - path: /
+#         backend:
+#           serviceName: lp
+#           servicePort: 80
+# ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: lp
-  labels:
-    app: lp
   annotations:
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '200'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '200'
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '200'
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: lp.mezi.web.id
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: lp
-          servicePort: 80
+    - host: lp.mezi.web.id
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lp
+                port:
+                  number: 80
