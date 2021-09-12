@@ -7,18 +7,18 @@ pipeline {
     }
         
     stages {
-        stage('Build podman Image') {
+        stage('Build docker Image') {
             steps {
-                sh 'podman build -t sddswd/lp:$BUILD_NUMBER .'
-                sh 'podman tag sddswd/lp:$BUILD_NUMBER sddswd/lp:latest'
+                sh 'docker build -t sddswd/lp:$BUILD_NUMBER .'
+                sh 'docker tag sddswd/lp:$BUILD_NUMBER sddswd/lp:latest'
             }
         }
-        stage('Push Image to podman hub') {
+        stage('Push Image to dockerhub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhublogin', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]){
-                    sh 'podman login docker.io -u ${USERNAME} -p ${PASSWORD}'
-                    sh 'podman push sddswd/lp:$BUILD_NUMBER'
-                    sh 'podman push sddswd/lp:latest'
+                    sh 'docker login docker.io -u ${USERNAME} -p ${PASSWORD}'
+                    sh 'docker push sddswd/lp:$BUILD_NUMBER'
+                    sh 'docker push sddswd/lp:latest'
                 }
             }
         }
@@ -31,10 +31,10 @@ pipeline {
                 """
             }
         }
-        stage('Remove podman image last build Dev') {
+        stage('Remove docker image last build') {
             steps {
-                sh 'podman rmi sddswd/lp:$BUILD_NUMBER'
-                sh 'podman rmi sddswd/lp:latest'
+                sh 'docker rmi sddswd/lp:$BUILD_NUMBER'
+                sh 'docker rmi sddswd/lp:latest'
             }
         }
         stage('Git') {
