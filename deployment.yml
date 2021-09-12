@@ -43,8 +43,8 @@ metadata:
   labels:
     app: lp
   annotations:
-    kubernetes.io/ingress.class: "kong"
-    konghq.com/strip-path: "true"
+    kubernetes.io/ingress.class: "nginx"
+    # konghq.com/strip-path: "true"
     # konghq.com/preserve-host: "true"
 spec:
   rules:
