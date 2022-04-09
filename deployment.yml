@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: lp
-        image: sddswd/lp:latest
+        image: meziaris/lp:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80

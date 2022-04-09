@@ -9,16 +9,16 @@ pipeline {
     stages {
         stage('Build docker Image') {
             steps {
-                sh 'docker build -t sddswd/lp:$BUILD_NUMBER .'
-                sh 'docker tag sddswd/lp:$BUILD_NUMBER sddswd/lp:latest'
+                sh 'docker build -t meziaris/lp:$BUILD_NUMBER .'
+                sh 'docker tag meziaris/lp:$BUILD_NUMBER meziaris/lp:latest'
             }
         }
         stage('Push Image to dockerhub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhublogin', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]){
                     sh 'docker login docker.io -u ${USERNAME} -p ${PASSWORD}'
-                    sh 'docker push sddswd/lp:$BUILD_NUMBER'
-                    sh 'docker push sddswd/lp:latest'
+                    sh 'docker push meziaris/lp:$BUILD_NUMBER'
+                    sh 'docker push meziaris/lp:latest'
                 }
             }
         }
@@ -33,8 +33,8 @@ pipeline {
         }
         stage('Remove docker image last build') {
             steps {
-                sh 'docker rmi sddswd/lp:$BUILD_NUMBER'
-                sh 'docker rmi sddswd/lp:latest'
+                sh 'docker rmi meziaris/lp:$BUILD_NUMBER'
+                sh 'docker rmi meziaris/lp:latest'
             }
         }
         stage('Git') {
